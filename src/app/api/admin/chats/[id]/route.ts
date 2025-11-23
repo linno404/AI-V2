@@ -1,58 +1,40 @@
-import { NextRequest, NextResponse } from "next/server";
+// src/app/api/admin/chats/[id]/route.ts
 
-// Dummy function for decoding token
-function verifyToken(token: string) {
-  try {
-    // Buat sesuai kebutuhan kamu
-    return JSON.parse(
-      Buffer.from(token.split(".")[1], "base64").toString()
-    );
-  } catch {
-    return null;
-  }
+import { NextRequest, NextResponse } from 'next/server';
+
+// Definisikan tipe Context untuk argumen kedua (tempat params berada)
+interface Context {
+  params: {
+    id: string; // Tipe ini diambil dari folder [id]
+  };
 }
 
-function isAdmin(decoded: any) {
-  return decoded && decoded.role === "ADMIN";
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+// Fungsi handler GET harus menerima NextRequest sebagai argumen pertama
+// dan Context (yang berisi params) sebagai argumen kedua.
+export async function GET(request: NextRequest, { params }: Context) {
   try {
-    const { id } = params;
+    const chatId = params.id; // Ini cara yang benar untuk mengakses 'id'
 
-    const authHeader = request.headers.get("authorization");
+    // --- Logika API Anda di sini ---
+    // Misalnya, ambil data dari database menggunakan chatId
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Authorization token required" },
-        { status: 401 }
-      );
+    if (!chatId) {
+      return NextResponse.json({ message: 'ID tidak ditemukan' }, { status: 400 });
     }
 
-    const token = authHeader.substring(7);
-    const decoded = verifyToken(token);
-
-    if (!decoded || !isAdmin(decoded)) {
-      return NextResponse.json(
-        { error: "Admin access required" },
-        { status: 403 }
-      );
-    }
-
-    // TODO: logic hapus chat di database
-    // await prisma.chat.delete({ where: { id } });
-
+    // Kembalikan respons sukses
     return NextResponse.json({
-      message: "Chat deleted successfully",
-      id,
-    });
-  } catch (error: any) {
+      message: `Data untuk Chat ID: ${chatId} berhasil diambil.`,
+      id: chatId,
+      // Tambahkan data aktual Anda di sini
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error('Error in API Handler:', error);
     return NextResponse.json(
-      { error: error.message || "Internal server error" },
+      { message: 'Kesalahan Internal Server' },
       { status: 500 }
     );
   }
 }
+// Ulangi pola ini jika Anda memiliki handler POST, PUT, atau DELETE.
