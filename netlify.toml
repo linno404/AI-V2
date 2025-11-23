@@ -1,0 +1,18 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+  base = "/"
+
+[functions]
+  directory = "netlify_functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["@prisma/client", "bcryptjs"]
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Untuk Next.js routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
